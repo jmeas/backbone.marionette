@@ -133,14 +133,22 @@ Marionette.LayoutView = Marionette.ItemView.extend({
   _initRegionManager: function() {
     this.regionManager = this.getRegionManager();
 
-    this.listenTo(this.regionManager, 'region:add', function(name, region) {
-      this[name] = region;
-      this.trigger('region:add', name, region);
+    this.listenTo(this.regionManager, 'before:add:region', function(name) {
+      this.triggerMethod('before:add:region', name);
     });
 
-    this.listenTo(this.regionManager, 'region:remove', function(name, region) {
+    this.listenTo(this.regionManager, 'add:region', function(name, region) {
+      this[name] = region;
+      this.triggerMethod('add:region', name, region);
+    });
+
+    this.listenTo(this.regionManager, 'before:remove:region', function(name) {
+      this.triggerMethod('before:remove:region', name);
+    });
+
+    this.listenTo(this.regionManager, 'remove:region', function(name, region) {
       delete this[name];
-      this.trigger('region:remove', name, region);
+      this.triggerMethod('remove:region', name, region);
     });
   }
 });

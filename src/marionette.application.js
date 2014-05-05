@@ -38,10 +38,8 @@ _.extend(Marionette.Application.prototype, Backbone.Events, {
   // initializes all of the regions that have been added
   // to the app, and runs all of the initializer functions
   start: function(options) {
-    this.triggerMethod('initialize:before', options);
+    this.triggerMethod('before:start', options);
     this._initCallbacks.run(options, this);
-    this.triggerMethod('initialize:after', options);
-
     this.triggerMethod('start', options);
   },
 
@@ -91,12 +89,22 @@ _.extend(Marionette.Application.prototype, Backbone.Events, {
   _initRegionManager: function() {
     this._regionManager = new Marionette.RegionManager();
 
-    this.listenTo(this._regionManager, 'region:add', function(name, region) {
-      this[name] = region;
+    this.listenTo(this._regionManager, 'before:add:region', function(name) {
+      this.triggerMethod('before:add:region', name);
     });
 
-    this.listenTo(this._regionManager, 'region:remove', function(name, region) {
+    this.listenTo(this._regionManager, 'add:region', function(name, region) {
+      this[name] = region;
+      this.triggerMethod('add:region', name, region);
+    });
+
+    this.listenTo(this._regionManager, 'before:remove:region', function(name) {
+      this.triggerMethod('before:remove:region', name);
+    });
+
+    this.listenTo(this._regionManager, 'remove:region', function(name, region) {
       delete this[name];
+      this.triggerMethod('remove:region', name, region);
     });
   },
 
