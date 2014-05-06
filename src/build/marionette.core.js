@@ -27,6 +27,7 @@
   };
 
   Backbone.Marionette = Marionette;
+  Marionette.Backbone = Backbone;
 
   // Get the DOM manipulator for later use
   Marionette.$ = Backbone.$;
