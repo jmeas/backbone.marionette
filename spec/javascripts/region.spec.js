@@ -290,7 +290,7 @@ describe('region', function() {
         this.myRegion = new this.MyRegion();
 
         this.sinon.spy(this.view1, 'destroy');
-
+        this.regionEmptySpy = this.sinon.spy(this.myRegion, 'empty');
         this.myRegion.show(this.view1);
       });
 
@@ -301,6 +301,12 @@ describe('region', function() {
 
         it('shouldnt "destroy" the old view', function() {
           expect(this.view1.destroy.callCount).to.equal(0);
+        });
+
+        it('shouldnt empty the region when the old view is destroyed', function() {
+          this.view1.trigger('destroy');
+
+          expect(this.regionEmptySpy).to.have.been.calledOnce;
         });
 
         it('should replace the content in the DOM', function() {
@@ -840,6 +846,38 @@ describe('region', function() {
       expect(this.beforeEmptySpy).to.have.been.calledOnce.and.calledWith(this.view);
       expect(this.emptySpy).to.have.been.calledOnce.calledWith(this.view);
       expect(this.region.currentView).to.be.undefined;
+    });
+  });
+
+  describe('when destroying a marionette view in a region', function() {
+    beforeEach(function() {
+      this.setFixtures('<div id="region"></div>');
+      this.beforeEmptySpy = new sinon.spy();
+      this.emptySpy = new sinon.spy();
+
+      this.region = new Backbone.Marionette.Region({
+        el: '#region'
+      });
+
+      this.region.on('before:empty', this.beforeEmptySpy);
+      this.region.on('empty', this.emptySpy);
+
+      this.View = Backbone.Marionette.View.extend({
+        template: _.template('')
+      });
+
+      this.view = new this.View();
+
+      this.region.show(this.view);
+      this.region.empty();
+    });
+
+    it('should trigger a empty event once', function() {
+      expect(this.emptySpy).to.have.been.calledOnce;
+    });
+
+    it('should trigger a before:empty event once', function() {
+      expect(this.beforeEmptySpy).to.have.been.calledOnce;
     });
   });
 });
